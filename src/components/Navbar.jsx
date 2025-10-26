@@ -54,7 +54,7 @@ export default function Navbar() {
       }`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        {/* Sleek Logo */}
+  {/* Sleek Logo */}
         <ScrollLink
           to="home"
           smooth={true}
