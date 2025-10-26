@@ -2,13 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="vite.svg" />
+  <link rel="icon" type="image/svg+xml" href="/digioptimized/rocket.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>digioptimized</title>
     <!-- League Spartan for logo / headings -->
     <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="/assets/index-DuSLNGUM.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-AJdo7j67.css">
+    <script type="module" crossorigin src="/digioptimized/assets/index-Bsgx61SG.js"></script>
+    <link rel="stylesheet" crossorigin href="/digioptimized/assets/index-CjV_IwxZ.css">
   </head>
   <body>
     <div id="root"></div>
@@ -40,13 +40,27 @@
           showError('Unhandled promise rejection:\n' + reason);
         });
 
-        // detect module/script load failures by checking for the main script element
+        // detect module/script load failures or runtime mount failures
         window.addEventListener('load', function(){
-          // if React didn't hydrate/mount within a short time, show a hint
+          // wait a short time for the app to mount; if nothing mounted, show a helpful message
           setTimeout(function(){
             var root = document.getElementById('root');
+            // If an explicit mount error was written by the bundle, show it (prefer detailed stack)
+            if(window.__APP_MOUNT_ERROR){
+              showError('App mount error detected:\n\n' + window.__APP_MOUNT_ERROR);
+              return;
+            }
+            // If the bundle marked itself as mounted, assume success
+            if(window.__APP_MOUNTED){
+              return;
+            }
             if(root && root.children.length === 0){
-              showError('App root is empty. Check console for module load errors (404) or runtime exceptions.');
+              var hint = 'App root is empty. Possible causes:\n'
+                + '- Module load failures (404 for /assets/*).\n'
+                + '- Runtime exception thrown during initial render (check console).\n'
+                + '- Incorrect Vite `base` causing wrong asset paths.\n\n'
+                + 'Open DevTools Console to see the first error stack, or ensure the deployed build matches the repo.';
+              showError(hint);
             }
           }, 1200);
         });
