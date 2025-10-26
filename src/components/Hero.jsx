@@ -1,6 +1,6 @@
 import React from "react";
 import { Sparkles, ArrowRight } from "lucide-react";
-import CountUp from "./CountUp";
+import PercentCounter from "./PercentCounter";
 
 export default function Hero() {
   return (
@@ -56,9 +56,9 @@ export default function Hero() {
         {/* Trust Indicators */}
         <div className="mt-16 grid grid-cols-3 gap-6 max-w-2xl mx-auto fade-in-up" style={{ animationDelay: '0.4s' }}>
           <div className="text-center">
-            <div className="text-3xl md:text-4xl font-display font-bold gradient-text mb-1">
-              <CountUp from={0} to={10} duration={1400} suffix="+" />
-            </div>
+            <div className="text-3xl md:text-4xl font-display font-bold gradient-text mb-1 fade-in-up" style={{ animationDelay: '0.45s' }}>
+                10+
+              </div>
             <div className="text-sm text-gray-600">Projects Delivered</div>
           </div>
           <div className="text-center border-x border-gray-200">
@@ -66,7 +66,9 @@ export default function Hero() {
             <div className="text-sm text-gray-600">Days Delivery</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl md:text-4xl font-display font-bold gradient-text mb-1">100%</div>
+            <div className="text-3xl md:text-4xl font-display font-bold gradient-text mb-1 fade-in-up" style={{ animationDelay: '0.5s' }}>
+              <PercentCounter from={1} to={100} duration={1400} suffix="%" />
+            </div>
             <div className="text-sm text-gray-600">Client Satisfaction</div>
           </div>
         </div>
