@@ -133,6 +133,17 @@ export default function Navbar() {
         {/* overlay for mobile */}
         <div className={`mobile-overlay ${open ? 'open' : ''}`} onClick={() => setOpen(false)} />
         <div className={`mobile-panel ${open ? 'open' : ''}`} role="dialog" aria-modal="true">
+          {/* Close button inside mobile panel for quick dismiss */}
+          <div className="flex justify-end p-3">
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="Close menu"
+              className="p-2 rounded-md hover:bg-slate-100 transition-colors duration-150"
+            >
+              <X className="w-6 h-6 text-gray-700" />
+            </button>
+          </div>
+
           <ul className="flex flex-col p-4 gap-2">
             {menuItems.map((item) => (
               <li key={item.name}>
