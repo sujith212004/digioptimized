@@ -4,15 +4,21 @@ on:
   push:
     branches: [ main ]
 
+# Required permissions for Pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
-  build-deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -23,10 +29,14 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Deploy to gh-pages
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Show dist contents
+        run: |
+          echo "Dist listing:" && ls -la dist || echo "dist directory not found"
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload artifact for GitHub Pages
+        uses: actions/upload-pages-artifact@v1
         with:
-          branch: gh-pages
-          folder: dist
-          clean: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          path: ./dist
