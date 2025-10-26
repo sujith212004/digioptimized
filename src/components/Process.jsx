@@ -1,42 +1,48 @@
 import React from "react";
-import { MessageSquare, Lightbulb, Code, Rocket, CheckCircle } from "lucide-react";
+import { Eye, Calendar, Monitor, Code, Megaphone, LifeBuoy, Rocket } from "lucide-react";
 
 export default function Process() {
   const steps = [
     {
-      icon: MessageSquare,
-      title: "Discovery Call",
-      desc: "We discuss your goals, target audience, and vision for your website.",
+      icon: Eye,
+      title: "O — Observe",
+      desc: "We start by understanding your business, goals, and target audience. We don’t just build websites; we build around your brand’s purpose.",
       color: "from-blue-500 to-cyan-500"
     },
     {
-      icon: Lightbulb,
-      title: "Strategy & Planning",
-      desc: "We create a customized plan tailored to your business needs.",
+      icon: Calendar,
+      title: "P — Plan",
+      desc: "Our team creates a clear strategy for your design, content, and timeline. A perfect plan ensures fast delivery within 7 days.",
       color: "from-purple-500 to-pink-500"
     },
     {
-      icon: Code,
-      title: "Design & Development",
-      desc: "Our team builds your stunning, responsive website with care.",
+      icon: Monitor,
+      title: "T — Transform",
+      desc: "We convert your ideas into a modern, visually stunning web design. Your vision starts taking digital shape here.",
       color: "from-orange-500 to-red-500"
     },
     {
-      icon: Rocket,
-      title: "Launch & Optimize",
-      desc: "We launch your site, set up SEO, and ensure everything works perfectly.",
+      icon: Code,
+      title: "I — Implement",
+      desc: "Our developers bring the design to life with clean, optimized code. Every click, every scroll, built for performance.",
       color: "from-green-500 to-emerald-500"
     },
     {
-      icon: CheckCircle,
-      title: "Ongoing Support",
-      desc: "We're here to help you grow with updates and continuous optimization.",
+      icon: Megaphone,
+      title: "M — Market",
+      desc: "We integrate SEO, Google My Business, and Meta Ads setup to help you grow. Because a website should work for your business, not just look good.",
       color: "from-indigo-500 to-purple-500"
     },
+    {
+      icon: LifeBuoy,
+      title: "A — Assist",
+      desc: "After delivery, we stay with you for updates and performance tracking. Your growth journey continues with DigiOptimized.",
+      color: "from-teal-500 to-cyan-500"
+    }
   ];
 
   return (
-    <section id="process" className="py-20 md:py-32 relative overflow-hidden">
+  <section id="process" className="py-12 md:py-20 relative overflow-hidden">
       <div className="container mx-auto px-4 md:px-6">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 fade-in-up">
@@ -44,10 +50,10 @@ export default function Process() {
             Our Process
           </span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-4">
-            From Idea to <span className="gradient-text">Launch in 7 Days</span>
+            The OPTIMA Process — Our 6-Step Success Formula
           </h2>
           <p className="text-lg text-gray-600">
-            Our proven process ensures fast delivery without compromising quality
+            "Every project we take goes through OPTIMA — our signature process built to deliver success, fast."
           </p>
         </div>
 

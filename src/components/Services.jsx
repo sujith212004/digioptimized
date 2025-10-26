@@ -17,7 +17,7 @@ export default function Services() {
     },
     { 
       icon: MapPin, 
-      title: "Google My Business", 
+      title: "Google Business Profile", 
       desc: "Get visible on Google Maps and dominate local search results.",
       gradient: "from-orange-500 to-red-500"
     },
@@ -27,22 +27,11 @@ export default function Services() {
       desc: "Strategic ad campaigns on Facebook & Instagram for maximum ROI.",
       gradient: "from-green-500 to-emerald-500"
     },
-    { 
-      icon: Palette, 
-      title: "Brand Design", 
-      desc: "Stunning graphics, logos, and social media designs for your brand.",
-      gradient: "from-yellow-500 to-orange-500"
-    },
-    { 
-      icon: Megaphone, 
-      title: "Digital Marketing", 
-      desc: "Complete marketing strategies to grow your online presence and sales.",
-      gradient: "from-indigo-500 to-purple-500"
-    },
+    
   ];
 
   return (
-    <section id="services" className="py-20 md:py-32 bg-white relative">
+  <section id="services" className="py-12 md:py-20 bg-white relative">
       <div className="container mx-auto px-4 md:px-6">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 fade-in-up">

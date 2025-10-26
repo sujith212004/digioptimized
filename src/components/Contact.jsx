@@ -9,12 +9,108 @@ export default function Contact() {
     message: ""
   });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate form submission
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+
+    // basic validation
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      alert("Please fill your name, email and message before sending.");
+      return;
+    }
+
+    setLoading(true);
+
+    // Web3Forms key (preferred if provided) and EmailJS fallback
+    const web3Key = import.meta.env.VITE_WEB3FORMS_KEY;
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const userId = import.meta.env.VITE_EMAILJS_USER_ID;
+
+    // Try Web3Forms first (client-only, easy to set up)
+    if (web3Key) {
+      try {
+        const payload = {
+          access_key: web3Key,
+          subject: `Website Contact: ${formData.name}`,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone || '',
+          message: formData.message,
+        };
+
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const json = await res.json();
+        if (res.ok && json.success) {
+          setSubmitted(true);
+          setFormData({ name: '', email: '', phone: '', message: '' });
+          setTimeout(() => setSubmitted(false), 3000);
+          setLoading(false);
+          setError(null);
+          return;
+        } else {
+          console.error('Web3Forms error', json);
+          setError('There was an issue sending via Web3Forms. Falling back to EmailJS if available.');
+        }
+      } catch (err) {
+        console.error('Web3Forms exception', err);
+        setError('Failed to send via Web3Forms. Falling back to EmailJS if available.');
+      }
+    }
+
+    // If Web3Forms didn't run or failed, try EmailJS (if configured)
+    if (serviceId && templateId && userId) {
+      try {
+        const payload = {
+          service_id: serviceId,
+          template_id: templateId,
+          user_id: userId,
+          template_params: {
+            from_name: formData.name,
+            from_email: formData.email,
+            phone: formData.phone || "",
+            message: formData.message,
+          },
+        };
+
+        const res = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          console.error("EmailJS error:", text);
+          setError("There was an issue sending your message. Please try again later.");
+        } else {
+          setSubmitted(true);
+          // Optionally clear form
+          setFormData({ name: "", email: "", phone: "", message: "" });
+          setTimeout(() => setSubmitted(false), 3000);
+          setLoading(false);
+          setError(null);
+          return;
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Failed to send message via EmailJS. Please try again later.");
+        // do not open mail client automatically; user must configure EmailJS to send
+        setLoading(false);
+        return;
+      }
+    }
+    // If we reach here, EmailJS env vars were missing. Do not open the user's mail client.
+    setError("Email sending is not configured. Please contact us directly at digioptimized@gmail.com or configure EmailJS (VITE_EMAILJS_* env vars).\n\nWe won't open your mail client automatically.");
+    setLoading(false);
+    setLoading(false);
   };
 
   const handleChange = (e) => {
@@ -25,7 +121,7 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="py-20 md:py-32 relative overflow-hidden">
+    <section id="contact" className="py-12 md:py-20 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
@@ -61,7 +157,7 @@ export default function Contact() {
                   onChange={handleChange}
                   required
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
-                  placeholder="John Doe"
+                  placeholder="Your Name"
                 />
               </div>
 
@@ -74,7 +170,7 @@ export default function Contact() {
                   onChange={handleChange}
                   required
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
-                  placeholder="john@example.com"
+                  placeholder="Your Email"
                 />
               </div>
 
@@ -86,7 +182,7 @@ export default function Contact() {
                   value={formData.phone}
                   onChange={handleChange}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
-                  placeholder="+1 (555) 123-4567"
+                  placeholder="Your Phone"
                 />
               </div>
 
@@ -103,14 +199,38 @@ export default function Contact() {
                 ></textarea>
               </div>
 
-              <button
+                  {error && (
+                    <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-100 text-red-700">
+                      <div className="text-sm whitespace-pre-line">{error}</div>
+                      <div className="mt-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard && navigator.clipboard.writeText('digioptimized@gmail.com');
+                            alert('Email address copied to clipboard: digioptimized@gmail.com');
+                          }}
+                          className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-red-600 text-white text-sm"
+                        >
+                          Copy Email
+                        </button>
+                        <a href="mailto:digioptimized@gmail.com" className="ml-3 text-sm text-red-600 underline">Open mail client</a>
+                      </div>
+                    </div>
+                  )}
+
+                  <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 font-semibold flex items-center justify-center gap-2"
+                disabled={loading}
+                className={`w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 font-semibold flex items-center justify-center gap-2 ${loading ? 'opacity-70 cursor-wait' : ''}`}
               >
                 {submitted ? (
                   <>
                     <CheckCircle className="w-5 h-5" />
                     Message Sent!
+                  </>
+                ) : loading ? (
+                  <>
+                    Sending...
                   </>
                 ) : (
                   <>
@@ -134,8 +254,8 @@ export default function Contact() {
                   </div>
                   <div>
                     <div className="font-semibold mb-1">Email Us</div>
-                    <a href="mailto:hello@digioptimized.com" className="text-blue-600 hover:underline">
-                      hello@digioptimized.com
+                    <a href="mailto:digioptimized@gmail.com" className="text-blue-600 hover:underline">
+                      digioptimized@gmail.com
                     </a>
                   </div>
                 </div>
@@ -147,7 +267,7 @@ export default function Contact() {
                   <div>
                     <div className="font-semibold mb-1">Call Us</div>
                     <a href="tel:+15551234567" className="text-blue-600 hover:underline">
-                      +1 (555) 123-4567
+                      +91 8438689782
                     </a>
                   </div>
                 </div>
@@ -159,8 +279,8 @@ export default function Contact() {
                   <div>
                     <div className="font-semibold mb-1">Visit Us</div>
                     <p className="text-gray-600">
-                      123 Business Ave, Suite 100<br />
-                      New York, NY 10001
+                     chennai, Tamil nadu<br />
+                      India
                     </p>
                   </div>
                 </div>
@@ -173,11 +293,11 @@ export default function Contact() {
               <div className="space-y-3 text-gray-600">
                 <div className="flex justify-between">
                   <span>Monday - Friday</span>
-                  <span className="font-semibold text-gray-900">9:00 AM - 6:00 PM</span>
+                  <span className="font-semibold text-gray-900">10:00 AM - 6:00 PM</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Saturday</span>
-                  <span className="font-semibold text-gray-900">10:00 AM - 4:00 PM</span>
+                  <span className="font-semibold text-gray-900">10:00 AM - 3:00 PM</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Sunday</span>

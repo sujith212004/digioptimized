@@ -1,36 +1,42 @@
 import React from "react";
 import { ExternalLink, Star } from "lucide-react";
+import m2fImg from "../assets/portfolio/m2f.shop.png";
+import arivuImg from "../assets/portfolio/Arivuai.png";
+import amjImg from "../assets/portfolio/amj-academy.png";
 
 export default function Portfolio() {
   const projects = [
     {
-      title: "E-commerce Revolution",
-      category: "Online Store",
-      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&h=300&fit=crop",
-      testimonial: "Sales increased by 300% in the first month!",
-      client: "Fashion Boutique Owner",
-      rating: 5
+      title: "m2f.shop",
+      category: "E‑commerce Website", 
+      image: m2fImg,
+      testimonial: "A fast, conversion-focused store built to scale.",
+      client: "m2f.shop",
+      rating: 5,
+      url: "https://m2f.shop"
     },
     {
-      title: "Professional Services Hub",
-      category: "Corporate Website",
-      image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&h=300&fit=crop",
-      testimonial: "Beautiful design and lightning-fast delivery!",
-      client: "Consulting Firm CEO",
-      rating: 5
+      title: "ArivuAI",
+      category: "AI Services Website",
+      image: arivuImg,
+      testimonial: "Modern look and clear messaging for AI services.",
+      client: "ArivuAI",
+      rating: 5,
+      url: "http://arivuai.in"
     },
     {
-      title: "Local Business Boost",
-      category: "GMB + SEO",
-      image: "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=500&h=300&fit=crop",
-      testimonial: "Now ranking #1 in local searches. Amazing!",
-      client: "Restaurant Owner",
-      rating: 5
-    },
+      title: "AMJ Academy",
+      category: "Education / LMS",
+      image: amjImg,
+      testimonial: "An intuitive learning platform with fast onboarding.",
+      client: "AMJ Academy",
+      rating: 5,
+      url: "http://amjacademy.in"
+    }
   ];
 
   return (
-    <section id="portfolio" className="py-20 md:py-32 relative overflow-hidden">
+  <section id="portfolio" className="py-12 md:py-20 relative overflow-hidden">
       <div className="container mx-auto px-4 md:px-6">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 fade-in-up">
@@ -61,10 +67,17 @@ export default function Portfolio() {
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-4">
-                  <button className="bg-white text-blue-600 px-4 py-2 rounded-full font-medium flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform">
-                    View Details
-                    <ExternalLink className="w-4 h-4" />
-                  </button>
+                  {project.url ? (
+                    <a href={project.url} target="_blank" rel="noreferrer" className="bg-white text-blue-600 px-4 py-2 rounded-full font-medium flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform">
+                      Visit Site
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  ) : (
+                    <button className="bg-white text-blue-600 px-4 py-2 rounded-full font-medium flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform">
+                      View Details
+                      <ExternalLink className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
 

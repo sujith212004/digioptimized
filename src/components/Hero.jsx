@@ -25,7 +25,7 @@ export default function Hero() {
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-extrabold mb-6 leading-tight fade-in-up" style={{ animationDelay: '0.1s' }}>
           Transform Your Business with{" "}
           <span className="gradient-text">Stunning</span>{" "}
-          <span className="gradient-text">Websites</span> 🚀
+          <span className="gradient-text">Websites</span> 
         </h1>
 
         {/* Subheading */}
@@ -55,7 +55,7 @@ export default function Hero() {
         {/* Trust Indicators */}
         <div className="mt-16 grid grid-cols-3 gap-6 max-w-2xl mx-auto fade-in-up" style={{ animationDelay: '0.4s' }}>
           <div className="text-center">
-            <div className="text-3xl md:text-4xl font-display font-bold gradient-text mb-1">30+</div>
+            <div className="text-3xl md:text-4xl font-display font-bold gradient-text mb-1">6+</div>
             <div className="text-sm text-gray-600">Projects Delivered</div>
           </div>
           <div className="text-center border-x border-gray-200">
@@ -69,12 +69,8 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-        <div className="w-6 h-10 border-2 border-blue-600 rounded-full flex justify-center pt-2">
-          <div className="w-1 h-2 bg-blue-600 rounded-full"></div>
-        </div>
-      </div>
+      
+      
     </section>
   );
 }

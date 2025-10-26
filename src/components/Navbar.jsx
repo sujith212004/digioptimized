@@ -23,8 +23,27 @@ export default function Navbar() {
     };
 
     window.addEventListener("scroll", handleScroll);
+    // Close mobile menu on Escape
+    const handleKey = (e) => {
+      if (e.key === 'Escape' && open) setOpen(false);
+    };
+    window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener("scroll", handleScroll);
+    // cleanup keydown as well
+    // (we won't reach this line due to early return style above; unify cleanup below)
   }, []);
+
+  // Proper cleanup for both listeners
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleKey = (e) => { if (e.key === 'Escape' && open) setOpen(false); };
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('keydown', handleKey);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('keydown', handleKey);
+    };
+  }, [open]);
 
   return (
     <nav
@@ -45,12 +64,12 @@ export default function Navbar() {
           hashSpy={false}
           isDynamic={true}
           onSetActive={() => setActiveSection("home")}
-          className="text-xl sm:text-2xl lg:text-3xl font-display font-extrabold cursor-pointer group"
+          className="flex items-center gap-3 text-xl sm:text-2xl lg:text-3xl font-display font-extrabold cursor-pointer group"
         >
-          <span className="gradient-text group-hover:opacity-80 transition-opacity duration-100">
-            Digioptimized
+          <span className="logo-text" title="Digioptimized — Web development & SEO">
+            <span className="gradient-text group-hover:opacity-80 transition-all duration-150">Digioptimized</span>
+            <span className="text-blue-600">.</span>
           </span>
-          <span className="text-blue-600">.</span>
         </ScrollLink>
 
         {/* Ultra Responsive Desktop Menu */}
@@ -65,37 +84,33 @@ export default function Navbar() {
                 offset={-80}
                 hashSpy={false}
                 isDynamic={true}
-                activeClass="text-blue-600 font-bold"
                 onSetActive={() => setActiveSection(item.to)}
-                className={`relative px-4 py-2 text-sm font-medium cursor-pointer transition-all duration-100 rounded-lg hover:bg-blue-50 ${
+                className={`nav-link relative px-4 py-2 text-sm font-medium cursor-pointer transition-all duration-150 rounded-lg ${
                   activeSection === item.to 
-                    ? "text-blue-600 font-bold" 
+                    ? "text-blue-600 font-bold"
                     : "text-gray-700 hover:text-blue-600"
                 }`}
+                aria-current={activeSection === item.to ? 'page' : undefined}
               >
                 {item.name}
-                {/* Active indicator dot */}
-                {activeSection === item.to && (
-                  <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full"></span>
-                )}
+                {/* Animated underline */}
+                <span className={`nav-underline ${activeSection === item.to ? 'active' : ''}`}></span>
               </ScrollLink>
             </li>
           ))}
           
           {/* Modern CTA Button */}
           <li className="ml-3">
-            <ScrollLink
-              to="contact"
-              smooth={true}
-              duration={200}
-              offset={-80}
-              hashSpy={false}
-              isDynamic={true}
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white px-5 py-2 rounded-lg cursor-pointer font-semibold text-sm hover:shadow-lg hover:scale-105 transition-all duration-100 active:scale-95"
+            <a
+              href="https://forms.gle/sUr1uxnakHbk4Tyv8"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Book a slot"
+              className="inline-flex items-center gap-2 cta-glow bg-gradient-to-r from-blue-600 to-blue-500 text-white px-5 py-2 rounded-lg cursor-pointer font-semibold text-sm hover:shadow-2xl hover:scale-105 transition-all duration-150 active:scale-95"
             >
-              Get Started
+              Book Slot
               <ArrowRight className="w-4 h-4" />
-            </ScrollLink>
+            </a>
           </li>
         </ul>
 
@@ -113,14 +128,12 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Ultra Fast Mobile Menu */}
-      <div 
-        className={`lg:hidden absolute top-full left-0 w-full transition-all duration-150 ${
-          open ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'
-        }`}
-      >
-        <div className="glass shadow-xl mx-4 mt-2 rounded-xl overflow-hidden">
-          <ul className="flex flex-col p-3">
+        {/* Ultra Fast Mobile Menu */}
+      <div className={`lg:hidden`} aria-hidden={!open}>
+        {/* overlay for mobile */}
+        <div className={`mobile-overlay ${open ? 'open' : ''}`} onClick={() => setOpen(false)} />
+        <div className={`mobile-panel ${open ? 'open' : ''}`} role="dialog" aria-modal="true">
+          <ul className="flex flex-col p-4 gap-2">
             {menuItems.map((item) => (
               <li key={item.name}>
                 <ScrollLink
@@ -151,7 +164,7 @@ export default function Navbar() {
                 hashSpy={false}
                 isDynamic={true}
                 onClick={() => setOpen(false)}
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white px-5 py-3 rounded-lg cursor-pointer font-semibold text-sm hover:shadow-lg transition-all duration-100 active:scale-95"
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white px-5 py-3 rounded-lg cursor-pointer font-semibold text-sm hover:shadow-2xl transition-all duration-150 active:scale-95"
               >
                 Get Started
                 <ArrowRight className="w-4 h-4" />

@@ -4,30 +4,27 @@ import { Quote, Star } from "lucide-react";
 export default function Testimonials() {
   const testimonials = [
     {
-      name: "Sarah Johnson",
+      name: "Sanjay Kumar",
       role: "E-commerce Owner",
-      image: "https://randomuser.me/api/portraits/women/44.jpg",
       rating: 5,
       text: "Digioptimized transformed my online store completely! Sales tripled in just 2 months. The team is professional, creative, and truly cares about results."
     },
     {
-      name: "Michael Chen",
+      name: "Priya Sharma",
       role: "Tech Startup Founder",
-      image: "https://randomuser.me/api/portraits/men/32.jpg",
       rating: 5,
       text: "Best decision ever! Our website looks stunning and the SEO results are incredible. We're ranking on page 1 for all our key terms. Highly recommend!"
     },
     {
-      name: "Emily Rodriguez",
+      name: "Amit Reddy",
       role: "Restaurant Owner",
-      image: "https://randomuser.me/api/portraits/women/65.jpg",
       rating: 5,
       text: "The GMB setup and local SEO brought us so many new customers. We're now the top-rated restaurant in our area. Thank you Digioptimized!"
     },
   ];
 
   return (
-    <section id="testimonials" className="py-20 md:py-32 bg-white relative">
+  <section id="testimonials" className="py-12 md:py-20 bg-white relative">
       <div className="container mx-auto px-4 md:px-6">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 fade-in-up">
@@ -46,7 +43,7 @@ export default function Testimonials() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {testimonials.map((testimonial, idx) => (
             <div 
-              key={testimonial.name}
+              key={idx}
               className="glass rounded-2xl p-8 hover-lift relative"
               style={{ animationDelay: `${idx * 0.1}s` }}
             >
@@ -64,17 +61,10 @@ export default function Testimonials() {
                 "{testimonial.text}"
               </p>
 
-              {/* Client Info */}
-              <div className="flex items-center gap-4">
-                <img 
-                  src={testimonial.image} 
-                  alt={testimonial.name}
-                  className="w-14 h-14 rounded-full object-cover ring-4 ring-blue-100"
-                />
-                <div>
-                  <div className="font-display font-bold text-gray-900">{testimonial.name}</div>
-                  <div className="text-sm text-gray-600">{testimonial.role}</div>
-                </div>
+              {/* Client Info (photo removed; showing name and role) */}
+              <div className="mt-4">
+                <div className="font-display font-bold text-gray-900">{testimonial.name}</div>
+                <div className="text-sm text-gray-600">{testimonial.role}</div>
               </div>
             </div>
           ))}

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import About from "./components/About";
@@ -9,8 +9,19 @@ import Process from "./components/Process";
 import FAQ from "./components/FAQ";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
+import Legal from "./pages/Legal";
 
 export default function App() {
+  const [hash, setHash] = useState(typeof window !== 'undefined' ? window.location.hash : '');
+
+  useEffect(() => {
+    const onHash = () => setHash(window.location.hash || '');
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+  const showLegal = hash && hash.startsWith('#legal');
+
   useEffect(() => {
     // Smooth page-to-page transitions with Intersection Observer
     const observerOptions = {
@@ -18,25 +29,57 @@ export default function App() {
       rootMargin: '0px',
       threshold: 0.15
     };
-
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
+        const el = entry.target;
         if (entry.isIntersecting) {
-          entry.target.classList.add('visible', 'page-transition-active');
+          el.classList.add('visible', 'page-transition-active');
+
+          // If this element wants staggered children, apply the helper class
+          if (el.classList.contains('stagger')) {
+            el.classList.add('stagger-children');
+          }
+        } else {
+          // keep visible if already animated in to avoid jank on small scrolls
+          // but remove page-transition-active so repeated enters re-trigger
+          el.classList.remove('page-transition-active');
         }
       });
     }, observerOptions);
 
-    // Observe all sections
-    const sections = document.querySelectorAll('section');
-    sections.forEach(section => {
-      observer.observe(section);
-    });
+    // Observe elements that explicitly opt-in for animation by using
+    // the `animate-on-scroll` class or any section element.
+    const targets = document.querySelectorAll('section, .animate-on-scroll');
+    targets.forEach(t => observer.observe(t));
 
     return () => {
-      sections.forEach(section => observer.unobserve(section));
+      targets.forEach(t => observer.unobserve(t));
     };
   }, []);
+
+  // Trigger a lightweight page transition when the hash (route) changes.
+  useEffect(() => {
+    const main = document.querySelector('main');
+    if (!main) return;
+
+    // Add a quick "out" state so content looks like it's transitioning away
+    main.classList.add('page-transition-out');
+
+    // After a short delay remove the out class and re-animate children in
+    const t = setTimeout(() => {
+      main.classList.remove('page-transition-out');
+
+      const children = Array.from(main.querySelectorAll(':scope > *'));
+      children.forEach((c, i) => {
+        // trigger reflow so the animation restarts
+        c.classList.remove('page-transition-active');
+        void c.offsetWidth;
+        c.classList.add('page-transition-active');
+      });
+    }, 160);
+
+    return () => clearTimeout(t);
+  }, [hash]);
 
   return (
     <div className="font-sans bg-white text-gray-800 overflow-hidden">
@@ -52,16 +95,22 @@ export default function App() {
         </div>
 
         {/* Smooth Animated Sections */}
-        <div className="smooth-appear">
-          <Hero />
-        </div>
-        <About />
-        <Services />
-        <Portfolio />
-        <Testimonials />
-        <Process />
-        <FAQ />
-        <Contact />
+        {!showLegal ? (
+          <>
+            <div className="smooth-appear">
+              <Hero />
+            </div>
+            <About />
+            <Services />
+            <Portfolio />
+            <Testimonials />
+            <Process />
+            <FAQ />
+            <Contact />
+          </>
+        ) : (
+          <Legal />
+        )}
       </main>
       
       <Footer />

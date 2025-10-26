@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Heart } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Mail, Heart } from "lucide-react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -39,11 +39,17 @@ export default function Footer() {
   ];
 
   const socialLinks = [
-    { icon: Facebook, href: "#", label: "Facebook", color: "hover:bg-blue-600" },
-    { icon: Twitter, href: "#", label: "Twitter", color: "hover:bg-sky-500" },
-    { icon: Instagram, href: "#", label: "Instagram", color: "hover:bg-pink-600" },
-    { icon: Linkedin, href: "#", label: "LinkedIn", color: "hover:bg-blue-700" },
+    // { icon: Facebook, href: "#", label: "Facebook", color: "hover:bg-blue-600" },
+    { icon: Mail, href: "mailto:digioptimized@gmail.com", label: "Email", color: "hover:bg-emerald-500" },
+    { icon: Instagram, href: "https://www.instagram.com/digioptimized", label: "Instagram", color: "hover:bg-pink-600" },
+    { icon: Linkedin, href: "https://www.linkedin.com/company/digioptimized/", label: "LinkedIn", color: "hover:bg-blue-700" },
   ];
+
+  // Newsletter state
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [nlLoading, setNlLoading] = useState(false);
+  const [nlSubmitted, setNlSubmitted] = useState(false);
+  const [nlError, setNlError] = useState(null);
 
   return (
     <footer ref={footerRef} className="bg-gradient-to-b from-slate-900 to-slate-950 text-white relative overflow-hidden group">
@@ -148,20 +154,120 @@ export default function Footer() {
             <p className="text-gray-400 mb-4 text-sm group-hover/newsletter:text-gray-300 transition-colors duration-300">
               Subscribe to our newsletter for tips, updates, and exclusive offers.
             </p>
-            <form className="flex gap-2">
+            <form className="flex gap-2" onSubmit={async (e) => {
+              e.preventDefault();
+              setNlError(null);
+              setNlLoading(true);
+
+              const web3Key = import.meta.env.VITE_WEB3FORMS_KEY;
+              const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+              const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+              const userId = import.meta.env.VITE_EMAILJS_USER_ID;
+
+              // basic validation
+              if (!newsletterEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newsletterEmail)) {
+                setNlError('Please enter a valid email address.');
+                setNlLoading(false);
+                return;
+              }
+
+              // Try Web3Forms first
+              if (web3Key) {
+                try {
+                  const payload = {
+                    access_key: web3Key,
+                    subject: 'New newsletter subscription',
+                    email: newsletterEmail,
+                    name: '',
+                    message: `New subscriber: ${newsletterEmail}`
+                  };
+
+                  const res = await fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                  });
+
+                  const json = await res.json();
+                  if (res.ok && json.success) {
+                    setNlSubmitted(true);
+                    setNewsletterEmail('');
+                    setNlLoading(false);
+                    setTimeout(() => setNlSubmitted(false), 4000);
+                    return;
+                  } else {
+                    console.error('Web3Forms subscribe error', json);
+                    setNlError('Failed to subscribe via Web3Forms. Trying EmailJS fallback...');
+                  }
+                } catch (err) {
+                  console.error('Web3Forms subscribe exception', err);
+                  setNlError('Web3Forms failed. Trying EmailJS fallback...');
+                }
+              }
+
+              // Fallback to EmailJS if configured
+              if (serviceId && templateId && userId) {
+                try {
+                  const payload = {
+                    service_id: serviceId,
+                    template_id: templateId,
+                    user_id: userId,
+                    template_params: {
+                      subscriber_email: newsletterEmail,
+                      subject: 'New newsletter subscription'
+                    }
+                  };
+
+                  const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                  });
+
+                  if (res.ok) {
+                    setNlSubmitted(true);
+                    setNewsletterEmail('');
+                    setNlLoading(false);
+                    setNlError(null);
+                    setTimeout(() => setNlSubmitted(false), 4000);
+                    return;
+                  } else {
+                    const text = await res.text();
+                    console.error('EmailJS subscribe error', text);
+                    setNlError('Failed to send subscription via EmailJS.');
+                    setNlLoading(false);
+                    return;
+                  }
+                } catch (err) {
+                  console.error('EmailJS subscribe exception', err);
+                  setNlError('EmailJS request failed.');
+                  setNlLoading(false);
+                  return;
+                }
+              }
+
+              // If neither service is configured
+              setNlError('Subscription service is not configured. Please contact us at digioptimized@gmail.com.');
+              setNlLoading(false);
+            }}>
               <input
                 type="email"
                 placeholder="Your email"
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
                 className="flex-1 px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 focus:border-blue-500 focus:outline-none text-sm transition-all duration-300 hover:bg-slate-700 focus:ring-2 focus:ring-blue-500/50"
               />
               <button
                 type="submit"
-                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-500 rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 hover:scale-110 hover:rotate-3 active:scale-95 group/button relative overflow-hidden"
+                disabled={nlLoading}
+                className={`px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-500 rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 hover:scale-110 hover:rotate-3 active:scale-95 group/button relative overflow-hidden ${nlLoading ? 'opacity-70 cursor-wait' : ''}`}
               >
-                <Mail className="w-5 h-5 relative z-10 group-hover/button:scale-110 transition-transform duration-300" />
+                {nlLoading ? 'Subscribing...' : <Mail className="w-5 h-5 relative z-10 group-hover/button:scale-110 transition-transform duration-300" />}
                 <span className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 opacity-0 group-hover/button:opacity-100 transition-opacity duration-300"></span>
               </button>
             </form>
+            {nlSubmitted && <div className="mt-3 text-sm text-green-400">Thanks — you are subscribed.</div>}
+            {nlError && <div className="mt-3 text-sm text-red-400 whitespace-pre-line">{nlError}</div>}
           </div>
         </div>
 
@@ -172,11 +278,11 @@ export default function Footer() {
               © {currentYear} Digioptimized. Made with <Heart className="w-4 h-4 text-red-500 fill-red-500 inline animate-pulse hover:scale-125 transition-transform duration-300 cursor-pointer" /> for your success.
             </p>
             <div className="flex gap-6">
-              <a href="#" className="hover:text-blue-400 transition-all duration-300 hover:translate-y-1 hover:font-medium relative group/policy">
+              <a href="#legal/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-all duration-300 hover:translate-y-1 hover:font-medium relative group/policy">
                 Privacy Policy
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-cyan-400 group-hover/policy:w-full transition-all duration-300"></span>
               </a>
-              <a href="#" className="hover:text-blue-400 transition-all duration-300 hover:-translate-y-1 hover:font-medium relative group/terms">
+              <a href="#legal/terms" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-all duration-300 hover:-translate-y-1 hover:font-medium relative group/terms">
                 Terms of Service
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-cyan-400 group-hover/terms:w-full transition-all duration-300"></span>
               </a>
