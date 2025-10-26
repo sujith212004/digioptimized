@@ -38,13 +38,27 @@
           showError('Unhandled promise rejection:\n' + reason);
         });
 
-        // detect module/script load failures by checking for the main script element
+        // detect module/script load failures or runtime mount failures
         window.addEventListener('load', function(){
-          // if React didn't hydrate/mount within a short time, show a hint
+          // wait a short time for the app to mount; if nothing mounted, show a helpful message
           setTimeout(function(){
             var root = document.getElementById('root');
+            // If an explicit mount error was written by the bundle, show it (prefer detailed stack)
+            if(window.__APP_MOUNT_ERROR){
+              showError('App mount error detected:\n\n' + window.__APP_MOUNT_ERROR);
+              return;
+            }
+            // If the bundle marked itself as mounted, assume success
+            if(window.__APP_MOUNTED){
+              return;
+            }
             if(root && root.children.length === 0){
-              showError('App root is empty. Check console for module load errors (404) or runtime exceptions.');
+              var hint = 'App root is empty. Possible causes:\n'
+                + '- Module load failures (404 for /assets/*).\n'
+                + '- Runtime exception thrown during initial render (check console).\n'
+                + '- Incorrect Vite `base` causing wrong asset paths.\n\n'
+                + 'Open DevTools Console to see the first error stack, or ensure the deployed build matches the repo.';
+              showError(hint);
             }
           }, 1200);
         });

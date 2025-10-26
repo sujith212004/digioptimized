@@ -3,13 +3,18 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
+// expose a mount flag so the page-overlay can inspect it for diagnostics
+window.__APP_MOUNTED = false;
 try {
   ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
       <App />
     </React.StrictMode>
   );
+  // mark success (may be synchronous); components may set additional state
+  window.__APP_MOUNTED = true;
 } catch (err) {
+  window.__APP_MOUNT_ERROR = (err && err.stack) ? err.stack : String(err);
   // If mounting fails on a deployed site, show the error in the overlay added to index.html
   try {
     console.error('App mount error', err);
