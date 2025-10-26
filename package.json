@@ -8,8 +8,9 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist -b gh-pages"
+  "predeploy": "npm run build",
+  "deploy": "gh-pages -d dist -b gh-pages",
+  "build:ghpages": "node scripts/build-ghpages.js"
   },
   "dependencies": {
     "@radix-ui/react-icons": "^1.3.2",
